@@ -13,21 +13,30 @@ const App = () => {
   ];
 
   const [selected, setSelected] = useState(0);
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0));
 
-  const getRandomIntInclusive = () => {
+  const getRandomInt = () => {
     const min = Math.ceil(0);
     const max = Math.floor(anecdotes.length);
     return Math.floor(Math.random() * (max - min) + min);
   };
 
   const getAnectode = () => {
-    const selection = getRandomIntInclusive();
+    const selection = getRandomInt();
     setSelected(selection);
+  };
+
+  const saveVotes = () => {
+    const copy = { ...votes };
+    copy[selected] += 1;
+    setVotes(copy);
   };
 
   return (
     <div>
       <p>{anecdotes[selected]}</p>
+      <p>has {votes[selected]} votes</p>
+      <button onClick={saveVotes}>vote</button>
       <button onClick={getAnectode}>next anecdote</button>
     </div>
   );
