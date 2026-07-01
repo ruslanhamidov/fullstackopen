@@ -14,6 +14,7 @@ const App = () => {
 
   const [selected, setSelected] = useState(0);
   const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0));
+  const [maxVotes, setMostVoted] = useState(0);
 
   const getRandomInt = () => {
     const min = Math.ceil(0);
@@ -24,6 +25,7 @@ const App = () => {
   const getAnectode = () => {
     const selection = getRandomInt();
     setSelected(selection);
+    getMostVoted();
   };
 
   const saveVotes = () => {
@@ -32,12 +34,22 @@ const App = () => {
     setVotes(copy);
   };
 
+  const getMostVoted = () => {
+    const valuesArray = Object.values(votes);
+    const maxIndex = valuesArray.indexOf(Math.max(...valuesArray));
+    setMostVoted(maxIndex);
+  };
+
   return (
     <div>
+      <h2>Anectode of the day</h2>
       <p>{anecdotes[selected]}</p>
       <p>has {votes[selected]} votes</p>
       <button onClick={saveVotes}>vote</button>
       <button onClick={getAnectode}>next anecdote</button>
+      <h2>Anectode with the most votes</h2>
+      <p>{anecdotes[maxVotes]}</p>
+      <p>has {votes[maxVotes]} votes</p>
     </div>
   );
 };
