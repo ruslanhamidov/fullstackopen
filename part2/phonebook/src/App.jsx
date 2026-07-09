@@ -1,18 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Title from "./components/Title";
 import Input from "./components/Input";
+import personService from "./services/persons";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [isEmpty, showFiltered] = useState(true);
+
+  const hook = () => {
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
+    });
+  };
+
+  useEffect(hook, []);
 
   const personToShow = isEmpty
     ? persons
@@ -41,12 +45,34 @@ const App = () => {
     const person = {
       name: newName,
       number: newNumber,
+      id: String(persons.length + 1),
     };
     !checkEntry(person)
-      ? setPersons(persons.concat(person))
+      ? personService.create(person).then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
+        })
       : alert(`${person.name} is already added to phonebook`);
+
     setNewName("");
     setNewNumber("");
+  };
+
+  const deletePersonById = (id) => {
+    const person = persons.find((n) => n.id === id);
+
+    const userConfirmed = window.confirm(`Delete ${person.name}`);
+
+    if (userConfirmed) {
+      personService
+        .deletePerson(id)
+        .then((response) => {
+          console.log(`Deleted successfully ${person.name}`);
+          hook();
+        })
+        .catch((error) => {
+          console.error("Error deleting resource:", error);
+        });
+    }
   };
 
   return (
@@ -74,6 +100,7 @@ const App = () => {
       {personToShow.map((person) => (
         <li key={person.id}>
           {person.name} {person.number}
+          <button onClick={() => deletePersonById(person.id)}>delete</button>
         </li>
       ))}
     </div>
