@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Title from "./components/Title";
-import Input from "./components/Input";
+import Field from "./components/Field";
 import Notification from "./components/Notification"
 import personService from "./services/persons";
 
@@ -10,26 +10,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [isEmpty, showFiltered] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState(null)
   const [messageClass, setMessageClass] = useState('success')
-
-
-  const hook = () => {
-    personService.getAll()
-      .then((initialPersons) => {
-      setPersons(initialPersons);
-      })
-      .catch((error) => {
-        setErrorMessage(
-                  `${error} occured`
-                )
-                setTimeout(() => {
-                  setErrorMessage(null)
-                }, 3000)
-      })
-  };
-
-  useEffect(hook, []);
 
   const personToShow = isEmpty
     ? persons
@@ -49,55 +31,63 @@ const App = () => {
     setNewSearch(val);
   };
 
-  const checkEntry = (entry) => {
+  const getPerson = (entry) => {
     return persons.find((person) => entry.name === person.name);
   };
 
-  const addPerson = (event) => {
+  const hook = () => {
+    personService.getAll()
+      .then((initialPersons) => {
+      setPersons(initialPersons);
+      })
+  };
+
+  useEffect(hook, []);
+
+  const handleInput = (event) => {
     event.preventDefault();
+
     const person = {
       name: newName,
       number: newNumber,
       id: String(persons.length + 1),
     };
 
-    !checkEntry(person)
-      ? personService.create(person).then((returnedPerson) => {
-        setPersons(persons.concat(returnedPerson));
-        setMessageClass('success')
-        setErrorMessage(
-                  `${person.name} was added to phonebook`
-                )
-                setTimeout(() => {
-                  setErrorMessage(null)
-                }, 3000)
-        })
-      : replaceNumber(person, newNumber);
+    !getPerson(person) ? createPerson(person) : replaceNumber(person, newNumber);
 
     setNewName("");
     setNewNumber("");
   };
 
+  const createPerson = (person) => {
+    personService.create(person).then((returnedPerson) => {
+      setPersons(persons.concat(returnedPerson));
+      showMessage('success', `${person.name} was added to phonebook`)
+      })
+  }
+
+  const showMessage = (className, message) => {
+    setMessageClass(className)
+    setMessage(message)
+    setTimeout(() => {
+      setMessage(null)
+    }, 3000)
+  }
+
   const replaceNumber = (entry, newNumber) => {
-    const oldPerson = checkEntry(entry)
+    const oldPerson = getPerson(entry)
     const changedPerson = {
       ...oldPerson,
       number: newNumber,
     };
-    const userConfirmed = window.confirm(`${changedPerson.name} is already added to the phonebook, replace the old number with a new one?`);
+    const userConfirmed = window.confirm(
+      `${changedPerson.name} is already added to the phonebook, replace the old number with a new one?`);
 
     if (userConfirmed) {
       personService
         .update(changedPerson.id, changedPerson)
         .then((response) => {
-          console.log(`Updated successfully ${changedPerson.name}`);
-          setMessageClass('success')
-          setErrorMessage(
-                    `${changedPerson.name}'s number was changed`
-                  )
-                  setTimeout(() => {
-                    setErrorMessage(null)
-                  }, 3000)
+          showMessage('success', `${changedPerson.name}'s number was changed`)
           hook()
         })
         .catch((error) => {
@@ -106,26 +96,20 @@ const App = () => {
     }
   }
 
-  const deletePersonById = (id) => {
-    const person = persons.find((n) => n.id === id);
+  const deletePersonById = (person) => {
+    const deletedPerson = getPerson(person)
 
-    const userConfirmed = window.confirm(`Delete ${person.name}`);
+    const userConfirmed = window.confirm(`Delete ${deletedPerson.name}`);
 
     if (userConfirmed) {
       personService
-        .deletePerson(id)
+        .deletePerson(deletedPerson.id)
         .then((response) => {
-          console.log(`Deleted successfully ${person.name}`);
+          showMessage('success', `${deletedPerson.name} was deleted`)
           hook();
         })
         .catch((error) => {
-          setMessageClass('error')
-          setErrorMessage(
-                    `Information of ${person.name} has already been removed from server`
-                    )
-                  setTimeout(() => {
-                    setErrorMessage(null)
-                  }, 3000)
+          showMessage('error', `Information of ${deletedPerson.name} has already been removed from server`)
         })
     }
   };
@@ -133,30 +117,24 @@ const App = () => {
   return (
     <div>
       <Title title="Phonebook" />
-      <Notification type={messageClass} message={errorMessage} />
-      <div>
-        filter shown with
-        <Input value={newSearch} onChange={handleOnChangeSearch} />
-      </div>
+      <Notification type={messageClass} message={message} />
+
+      <Field text='filter shown with' value={newSearch} onChange={handleOnChangeSearch} />
+
       <Title title="add a new" />
-      <form onSubmit={addPerson}>
-        <div>
-          name:
-          <Input value={newName} onChange={handleOnChangeName} />
-        </div>
-        <div>
-          number:
-          <Input value={newNumber} onChange={handleOnChangeNumber} />
-        </div>
+      <form onSubmit={handleInput}>
+          <Field text='name:' value={newName} onChange={handleOnChangeName} />
+          <Field text='number:' value={newNumber} onChange={handleOnChangeNumber} />
         <div>
           <button type="submit">add</button>
         </div>
       </form>
+
       <Title title="Numbers" />
       {personToShow.map((person) => (
         <li key={person.id}>
           {person.name} {person.number}
-          <button onClick={() => deletePersonById(person.id)}>delete</button>
+          <button onClick={() => deletePersonById(person)}>delete</button>
         </li>
       ))}
     </div>
