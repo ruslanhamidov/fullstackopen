@@ -47,15 +47,37 @@ const App = () => {
       number: newNumber,
       id: String(persons.length + 1),
     };
+
     !checkEntry(person)
       ? personService.create(person).then((returnedPerson) => {
           setPersons(persons.concat(returnedPerson));
         })
-      : alert(`${person.name} is already added to phonebook`);
+      : replaceNumber(person, newNumber);
 
     setNewName("");
     setNewNumber("");
   };
+
+  const replaceNumber = (entry, newNumber) => {
+    const oldPerson = checkEntry(entry)
+    const changedPerson = {
+      ...oldPerson,
+      number: newNumber,
+    };
+    const userConfirmed = window.confirm(`${changedPerson.name} is already added to the phonebook, replace the old number with a new one?`);
+
+    if (userConfirmed) {
+      personService
+        .update(changedPerson.id, changedPerson)
+        .then((response) => {
+          console.log(`Updated successfully ${changedPerson.name}`);
+          hook()
+        })
+        .catch((error) => {
+          console.error("Error updating resource:", error);
+        });
+    }
+  }
 
   const deletePersonById = (id) => {
     const person = persons.find((n) => n.id === id);
