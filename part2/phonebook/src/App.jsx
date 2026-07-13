@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Title from "./components/Title";
 import Input from "./components/Input";
+import Notification from "./components/Notification"
 import personService from "./services/persons";
 
 const App = () => {
@@ -9,11 +10,23 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [newSearch, setNewSearch] = useState("");
   const [isEmpty, showFiltered] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [messageClass, setMessageClass] = useState('success')
+
 
   const hook = () => {
-    personService.getAll().then((initialPersons) => {
+    personService.getAll()
+      .then((initialPersons) => {
       setPersons(initialPersons);
-    });
+      })
+      .catch((error) => {
+        setErrorMessage(
+                  `${error} occured`
+                )
+                setTimeout(() => {
+                  setErrorMessage(null)
+                }, 3000)
+      })
   };
 
   useEffect(hook, []);
@@ -50,7 +63,14 @@ const App = () => {
 
     !checkEntry(person)
       ? personService.create(person).then((returnedPerson) => {
-          setPersons(persons.concat(returnedPerson));
+        setPersons(persons.concat(returnedPerson));
+        setMessageClass('success')
+        setErrorMessage(
+                  `${person.name} was added to phonebook`
+                )
+                setTimeout(() => {
+                  setErrorMessage(null)
+                }, 3000)
         })
       : replaceNumber(person, newNumber);
 
@@ -71,6 +91,13 @@ const App = () => {
         .update(changedPerson.id, changedPerson)
         .then((response) => {
           console.log(`Updated successfully ${changedPerson.name}`);
+          setMessageClass('success')
+          setErrorMessage(
+                    `${changedPerson.name}'s number was changed`
+                  )
+                  setTimeout(() => {
+                    setErrorMessage(null)
+                  }, 3000)
           hook()
         })
         .catch((error) => {
@@ -92,14 +119,21 @@ const App = () => {
           hook();
         })
         .catch((error) => {
-          console.error("Error deleting resource:", error);
-        });
+          setMessageClass('error')
+          setErrorMessage(
+                    `Information of ${person.name} has already been removed from server`
+                    )
+                  setTimeout(() => {
+                    setErrorMessage(null)
+                  }, 3000)
+        })
     }
   };
 
   return (
     <div>
       <Title title="Phonebook" />
+      <Notification type={messageClass} message={errorMessage} />
       <div>
         filter shown with
         <Input value={newSearch} onChange={handleOnChangeSearch} />
