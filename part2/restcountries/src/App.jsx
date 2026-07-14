@@ -3,9 +3,16 @@ import { useState, useEffect } from "react";
 
 const App = () => {
   const [countries, setCountries] = useState([])
-  // const [singleCountry, setCountry] = useState()
+  const [showCountry, setShow] = useState(false)
+  const [singleCountry, setSingleCountry] = useState({})
   const [newSearch, setNewSearch] = useState("");
   const [isEmpty, showCountries] = useState(true);
+
+  const show = (country) => {
+    setShow(!showCountry)
+    setSingleCountry(country)
+  }
+
 
   const getCountries = () => {
     axios.
@@ -35,22 +42,25 @@ const App = () => {
     }
 
     if (countryToShow.length === 1) {
-      return renderCountry()
+      return <Country country={countryToShow[0]} />
     }
+
     return (
       <div>
         {countryToShow.map(
         (country) => (
-          <li key={country.cca2}>{country.name.common}</li>
+            <li key={country.cca2}>
+              {country.name.common}
+              <button onClick={() => show(country)}>show</button>
+            </li>
         )
-      )}
+        )}
       </div>
     )
   }
 
-  const renderCountry = () => {
-    const country = countryToShow[0]
-    console.log(country.languages)
+  const Country = ({country}) => {
+
     return (
       <div>
         <h1>{country.name.common}</h1>
@@ -63,6 +73,7 @@ const App = () => {
         ))}
         </ul>
         <img src={country.flags.png}></img>
+        <h1>Weather in {country.name.common}</h1>
       </div>
     )
   }
@@ -72,6 +83,7 @@ const App = () => {
       <h1>Rest Countries</h1>
       find countries<input value={newSearch} onChange={onChangeSearch}></input>
       {contriesQuery()}
+      {showCountry && <Country country={singleCountry} />}
     </div>
   )
 }
