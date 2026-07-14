@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useState, useEffect } from "react";
+import Country from "./components/Country"
 
 const App = () => {
   const [countries, setCountries] = useState([])
@@ -8,11 +9,11 @@ const App = () => {
   const [newSearch, setNewSearch] = useState("");
   const [isEmpty, showCountries] = useState(true);
 
+
   const show = (country) => {
     setShow(!showCountry)
     setSingleCountry(country)
   }
-
 
   const getCountries = () => {
     axios.
@@ -32,7 +33,6 @@ const App = () => {
 
   const countryToShow = isEmpty ? [] :
     countries.filter((country) => country.name.common.toLowerCase().includes(newSearch));
-
 
   const contriesQuery = () => {
     if (countryToShow.length > 10) {
@@ -55,25 +55,6 @@ const App = () => {
             </li>
         )
         )}
-      </div>
-    )
-  }
-
-  const Country = ({country}) => {
-
-    return (
-      <div>
-        <h1>{country.name.common}</h1>
-        <p>Capital {country.capital}</p>
-        <p>Area {country.area}</p>
-        <h1>Languages</h1>
-        <ul>
-        {Object.values(country.languages).map((language) => (
-          <li>{language}</li>
-        ))}
-        </ul>
-        <img src={country.flags.png}></img>
-        <h1>Weather in {country.name.common}</h1>
       </div>
     )
   }
