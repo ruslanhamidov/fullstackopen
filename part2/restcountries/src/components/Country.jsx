@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react"
 import axios from 'axios'
 
-
 const Country = ({ country }) => {
     const api_key = import.meta.env.VITE_API_KEY
     const baseUrl = 'http://api.openweathermap.org/data/2.5/weather'
     const [countryWeather, setWeather] = useState({})
-    const [weatherIcon, setIcon] = useState('')
 
     const requestUrl = baseUrl.concat(`?q=${country.capital}&units=metric&appid=${api_key}`)
 
@@ -14,14 +12,12 @@ const Country = ({ country }) => {
       axios.get(requestUrl).then((response) => setWeather(response.data))
     }, [requestUrl])
 
-    if (!countryWeather.main) {
-      return <p>Loading weather...</p>
-    }
-    // https://openweathermap.org/payload/api/media/file/10d@2x.png
+
+  if (!countryWeather.main) {
+    return <p>Loading weather...</p>
+  }
   const icon = countryWeather.weather[0].icon
-  const pngUrl = `http://openweathermap.org/payload/api/media/file/${icon}.png`
-  const pngIcon = axios.get(pngUrl).then((response) => setWeather(response.data))
-  console.log(pngIcon)
+  const pngUrl = `https://rodrigokamada.github.io/openweathermap/images/${icon}_t.png`
 
   return (
       <div>
@@ -37,7 +33,7 @@ const Country = ({ country }) => {
         <img src={country.flags.png}></img>
         <h1>Weather in {country.name.common}</h1>
         <p>Wind {countryWeather.wind.speed} m/s</p>
-        <img src={icon}></img>
+        <img src={pngUrl}></img>
         <p>Temperature {countryWeather.main.temp} Celsius</p>
       </div>
     )
