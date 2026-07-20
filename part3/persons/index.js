@@ -4,7 +4,7 @@ const morgan = require('morgan')
 
 app.use(express.json())
 
-app.use(morgan(':method :url :status :body - :response-time ms'))
+app.use(morgan(':method :url :status - :response-time ms :date[web]'))
 
 const dateNow = () => {
   return new Date().toString()
@@ -74,7 +74,7 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', morgan(':method :url :status :body - :response-time ms :date[web]'),(request, response) => {
   const body = request.body
 
   if (!body.name || !body.number) {
@@ -86,7 +86,7 @@ app.post('/api/persons', (request, response) => {
   }
 
   const person = {
-    "id": generateId(),
+    "id": String(generateId()),
     "name": body.name,
     "number": body.number,
   }
