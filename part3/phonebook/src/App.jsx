@@ -60,9 +60,14 @@ const App = () => {
   };
 
   const createPerson = (person) => {
-    personService.create(person).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      showMessage('success', `${person.name} was added to phonebook`)
+    personService
+      .create(person)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        showMessage('success', `${person.name} was added to phonebook`)
+      })
+      .catch(error => {
+        showMessage('error', `${error.response.data.error}`)
       })
   }
 
