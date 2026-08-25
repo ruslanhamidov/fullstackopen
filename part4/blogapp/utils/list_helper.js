@@ -1,4 +1,4 @@
-let assert = require('assert');
+let assert = require('assert')
 
 const dummy = (blogs) => {
   return 1
@@ -21,42 +21,43 @@ const favoriteBlog = (blogs) => {
 }
 
 const mostBlogs = (blogs) => {
-  let listOfAuthors = []
-  let authorsObj = []
-  for (const blog of blogs) {
-    listOfAuthors.push(blog.author)
+  const counts = {}
+
+  for (const { author } of blogs) {
+    counts[author] = (counts[author] || 0) + 1
   }
-  for (const author of [...new Set(listOfAuthors)]) {
-    authorsObj.push(
-      {
-        'name': author,
-        'blogs': listOfAuthors.filter(item => item === author).length
-      }
-    )
+
+  let result = null
+
+  for (const [author, blogs] of Object.entries(counts)) {
+    if (!result || blogs > result.blogs) {
+      result = { author, blogs }
+    }
   }
-  return authorsObj.reduce((max, item) => item.blogs > max.blogs ? item : max)
+
+  return result
 }
 
 const mostLikes = (blogs) => {
-  let listOfAuthors = []
-  let authorsObj = []
-  for (const blog of blogs) {
-    listOfAuthors.push(blog.author)
+  const likes = {};
+
+  for (const { author, likes: blogLikes } of blogs) {
+    likes[author] = (likes[author] || 0) + blogLikes;
   }
-  for (const author of [...new Set(listOfAuthors)]) {
-    let count = 0
-    for (const blog of blogs) {
-      if (blog.author === author) {
-        count += blog.likes
-      }
+
+  let result = null;
+
+  for (const [author, totalLikes] of Object.entries(likes)) {
+    if (!result || totalLikes > result.likes) {
+      result = {
+        author,
+        likes: totalLikes
+      };
     }
-    authorsObj.push(Object.fromEntries([
-      ['name', author],
-      ['likes', count]
-    ]))
   }
-  return authorsObj.reduce((max, item) => item.likes > max.likes ? item : max)
-}
+
+  return result;
+};
 
 module.exports = {
   dummy,

@@ -56,7 +56,7 @@ test('Uncle bob most blogs', () => {
     }
   ]
 
-  assert.deepStrictEqual(listHelper.mostBlogs(blogs), { name: 'Robert C. Martin', blogs: 3 })
+  assert.deepStrictEqual(listHelper.mostBlogs(blogs), { author: 'Robert C. Martin', blogs: 3 })
 })
 
 test('Dijkstra most blogs', () => {
@@ -118,6 +118,6 @@ test('Dijkstra most blogs', () => {
     },
   ]
 
-  assert.deepStrictEqual(listHelper.mostBlogs(blogs), { name: 'Edsger W. Dijkstra', blogs: 4 })
+  assert.deepStrictEqual(listHelper.mostBlogs(blogs), { author: 'Edsger W. Dijkstra', blogs: 4 })
 })
 })
