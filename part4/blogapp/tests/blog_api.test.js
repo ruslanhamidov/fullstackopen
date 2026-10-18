@@ -120,7 +120,48 @@ describe('blog api', () => {
       const blogsAtEnd = await blogsInDb()
       assert.strictEqual(blogsAtEnd.length, initialBlogs.length)
   })
-  
+
+  test('delete specific blog', async () => {
+    const blogs = await blogsInDb()
+    const id = blogs[blogs.length - 1].id
+
+    await api
+        .delete(`/api/blogs/${id}`)
+        .expect(204)
+
+      const blogsAtEnd = await blogsInDb()
+      assert.strictEqual(blogsAtEnd.length, initialBlogs.length - 1)
+  })
+
+  test('get specific blog by id', async () => {
+    const blogs = await blogsInDb()
+    const blog = blogs[0]
+
+    const resultBlog = await api
+        .get(`/api/blogs/${blog.id}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      assert.deepStrictEqual(resultBlog.body, blog)
+  })
+
+  test('change specific blog by id', async () => {
+    const blogs = await blogsInDb()
+    const blog = blogs[0]
+    const body = {likes: 3}
+    
+    await api
+      .put(`/api/blogs/${blog.id}`)
+      .send(body)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await blogsInDb()
+    const blogAtEnd = blogsAtEnd[0]
+
+      assert.strictEqual(blogAtEnd.likes, blog.likes + 1)
+  })
+
   after(async () => {
     await mongoose.connection.close()
   })
