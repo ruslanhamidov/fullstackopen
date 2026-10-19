@@ -149,7 +149,7 @@ describe('blog api', () => {
     const blogs = await blogsInDb()
     const blog = blogs[0]
     const body = {likes: 3}
-    
+
     await api
       .put(`/api/blogs/${blog.id}`)
       .send(body)
@@ -159,7 +159,7 @@ describe('blog api', () => {
     const blogsAtEnd = await blogsInDb()
     const blogAtEnd = blogsAtEnd[0]
 
-      assert.strictEqual(blogAtEnd.likes, blog.likes + 1)
+    assert.strictEqual(blogAtEnd.likes, blog.likes + 1)
   })
 
   after(async () => {
