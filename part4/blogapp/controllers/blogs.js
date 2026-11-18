@@ -11,6 +11,7 @@ blogsRouter.post('/', async (request, response) => {
   const body = request.body
 
   const user = await User.findById(body.userId)
+
   if (!user) {
     return response.status(400).json({error: 'userId missing or not valid'})
   }
