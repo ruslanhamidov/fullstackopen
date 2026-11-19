@@ -10,8 +10,12 @@ blogsRouter.post('/', async (request, response) => {
   const body = request.body
   const user = request.user
 
+  if (!body.title || !body.author) {
+    return response.status(400).json({error: 'missing title or author'})
+  }
+
   if (!user) {
-    return response.status(400).json({error: 'userId missing or not valid'})
+    return response.status(401).json({error: 'userId missing or not valid'})
   }
 
   const newBlog = new Blog({
